@@ -4,7 +4,7 @@ import {commentsController} from "../comments/commentsController";
 import {
     blogIdInPostValidator,
     contentPostValidator,
-    idPostValidator,
+    idPostValidator, likeStatusPostValidator,
     shortDescriptionPostValidator,
     titlePostValidator
 } from "./validators/postsValidators";
@@ -69,6 +69,9 @@ router.route('/:id/comments')
 router.route('/:id/like-status')
     .put(
         authMiddlewareWithBearer,
+        idPostValidator,
+        likeStatusPostValidator,
+        errorExpressValidatorMiddleware,
         postsController.updatePostByIdWithLikeStatus
     )
 

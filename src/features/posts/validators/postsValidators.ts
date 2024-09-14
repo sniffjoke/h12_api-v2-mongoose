@@ -41,3 +41,7 @@ export const idPostValidator = param('id')
         // return !!post
     }).withMessage('Пост с заданным id не найден!')
 
+export const likeStatusPostValidator = body('likeStatus')
+    .isString().withMessage('Должно быть строковым значением')
+    .trim()
+    .matches(/\b(?:Like|Dislike|None)\b/).withMessage('Непонятный тип')

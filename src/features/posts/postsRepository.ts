@@ -32,7 +32,12 @@ class PostsRepository {
 
     async createPostByBlogId(postData: Omit<IPost, 'blogId'>, blogId: string): Promise<PostInstance> {
         const blog: BlogInstance | null = await this.blogs.findById(blogId)
-        const post = new this.posts({...postData, blogId: blog?._id, blogName: blog?.name})
+        const extendedLikesInfo: ExtendedLikesInfo = {
+            likesCount: 0,
+            dislikesCount: 0,
+            newestLikes: []
+        }
+        const post = new this.posts({...postData, blogId: blog?._id, blogName: blog?.name, extendedLikesInfo})
         await post.save()
         return post
     }
