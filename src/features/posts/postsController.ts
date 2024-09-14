@@ -21,6 +21,7 @@ class PostsController {
             const postsQuery = await findPostsHelper(req.query)
             const sortedPosts = await postsQueryRepository.postsSortWithQuery(postsQuery)
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
+            console.log(sortedPosts)
             const postsMap = await Promise.all(sortedPosts.map(async (item) => {
                 const likeStatus = await likeModel.findOne({postId: item._id, userId: isUserExists?._id})
                 const likeDetails = await likeModel.find({postId: item._id, status: LikeStatus.Like}).limit(3)

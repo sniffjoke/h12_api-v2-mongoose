@@ -10,8 +10,10 @@ class PostsQueryRepository {
         const sortedPosts = await this.posts
             .find()
             // .sort(query.sortBy, query.sortDirection)
+            .sort({createdAt: -1})
             .limit(query.pageSize)
             .skip((query.page - 1) * query.pageSize)
+            .lean()
         return sortedPosts
     }
 
@@ -19,6 +21,7 @@ class PostsQueryRepository {
         const sortedPosts = await this.posts
             .find({blogId})
             // .sort(query.sortBy, query.sortDirection)
+            .sort({createdAt: -1})
             .limit(query.pageSize)
             .skip((query.page - 1) * query.pageSize)
             .lean()
