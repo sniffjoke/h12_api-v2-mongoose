@@ -1,5 +1,4 @@
-import {BlogInstance} from "../../../interfaces/blogs.interface";
-import {PostInstance} from "../../../interfaces/posts.interface";
+import {ExtendedLikesInfo, PostInstance} from "../../../interfaces/posts.interface";
 
 export class CreatePostDto {
     public id: string;
@@ -9,6 +8,7 @@ export class CreatePostDto {
     public blogId: string;
     public blogName: string;
     public createdAt: string;
+    public extendedLikesInfo: ExtendedLikesInfo;
 
     constructor(model: PostInstance) {
         this.id = model._id;
@@ -18,5 +18,6 @@ export class CreatePostDto {
         this.blogId = model.blogId;
         this.blogName = model.blogName;
         this.createdAt = model.createdAt;
+        this.extendedLikesInfo = model.extendedLikesInfo;
     }
 }

@@ -26,7 +26,7 @@ class PostsQueryRepository {
     }
 
     async postOutput(id: string): Promise<CreatePostDto> {
-        const post = await this.posts.findById(id)
+        const post = await this.posts.findById(id).lean()
         return this.postMapOutput(post as PostInstance)
     }
 
