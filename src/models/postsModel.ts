@@ -25,9 +25,9 @@ const extendedLikesInfo: Schema = new Schema({
         dislikesCount: {
             type: Number,
         },
-        newestLikes: {
-            type: [newestLike]
-        }
+        // newestLikes: {
+        //     type: [newestLike]
+        // }
     },
     {_id: false}
 )

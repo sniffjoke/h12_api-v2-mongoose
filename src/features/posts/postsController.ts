@@ -101,7 +101,7 @@ class PostsController {
             const post = await postsQueryRepository.postOutput(req.params.id)
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
             const likeStatus = await likeModel.findOne({userId: isUserExists?._id, postId: post.id})
-            const likeDetails = await likeModel.find({postId: post.id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
+            const likeDetails = await likeModel.find({postId: post.id, status: LikeStatus.Like}).limit(3).sort({createdAt: 1})
             const likeDetailsMap = await Promise.all(
                 likeDetails.map(async (like: any) => {
                     const user = await userModel.findById(like.userId)
