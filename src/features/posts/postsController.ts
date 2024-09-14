@@ -155,7 +155,11 @@ class PostsController {
             const newPost = await postsQueryRepository.postOutput(post._id)
             res.status(201).json({
                 ...newPost,
-                extendedLikesInfo: {...newPost.extendedLikesInfo, myStatus: LikeStatus.None}
+                extendedLikesInfo: {
+                    ...newPost.extendedLikesInfo,
+                    myStatus: LikeStatus.None,
+                    newestLikes: []
+                }
             })
         } catch (e) {
             res.status(500).send(e)
