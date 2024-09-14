@@ -98,7 +98,8 @@ class PostsController {
 
     async createPost(req: Request<any, any, any, any>, res: Response) {
         try {
-            const newPost = await postsRepository.createPost(req.body)
+            const post = await postsRepository.createPost(req.body)
+            const newPost = await postsQueryRepository.postOutput(post._id)
             res.status(201).json({...newPost, extendedLikesInfo: {...newPost.extendedLikesInfo, myStatus: LikeStatus.None}})
         } catch (e) {
             res.status(500).send(e)

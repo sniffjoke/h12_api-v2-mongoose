@@ -19,7 +19,7 @@ class PostsRepository {
     }
 
     async createPost(postData: IPost): Promise<PostInstance> {
-        const blog: BlogInstance | null = await this.blogs.findById(postData.blogId)
+        const blog: BlogInstance | null = await this.blogs.findById(postData.blogId).lean()
         const extendedLikesInfo: ExtendedLikesInfo = {
             likesCount: 0,
             dislikesCount: 0,
@@ -27,10 +27,6 @@ class PostsRepository {
         }
         const post = new this.posts({...postData, blogName: blog?.name, extendedLikesInfo})
         await post.save()
-        // const likeStatus = await likeModel.create({
-        //     status: LikeStatus.None,
-        //     postId: post._id,
-        // })
         return post
     }
 
