@@ -112,11 +112,18 @@ class PostsController {
                     }
                 })
             )
-            res.status(200).json({
+            res.status(200).json(likeDetailsMap.length ? {
                 ...post,
                 extendedLikesInfo: {
                     ...post.extendedLikesInfo,
                     newestLikes: likeDetailsMap,
+                    myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
+                }
+            } : {
+                ...post,
+                extendedLikesInfo: {
+                    ...post.extendedLikesInfo,
+                    // newestLikes: likeDetailsMap,
                     myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
                 }
             })
