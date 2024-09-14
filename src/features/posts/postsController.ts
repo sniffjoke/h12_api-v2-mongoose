@@ -123,7 +123,7 @@ class PostsController {
                 ...post,
                 extendedLikesInfo: {
                     ...post.extendedLikesInfo,
-                    // newestLikes: likeDetailsMap,
+                    newestLikes: likeDetailsMap,
                     myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
                 }
             })
