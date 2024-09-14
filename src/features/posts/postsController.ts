@@ -4,6 +4,18 @@ import {postsQueryRepository} from "./postsQueryRepository";
 import {CreateItemsWithQueryDto} from "../blogs/dto/CreateDataWithQuery.dto";
 import {PostInstance} from "../../interfaces/posts.interface";
 import {postsRepository} from "./postsRepository";
+import {tokenService} from "../../services/token.service";
+import {decode} from "jsonwebtoken";
+import {UserInstance} from "../../interfaces/users.interface";
+import {userModel} from "../../models/usersModel";
+import {commentModel} from "../../models/commentsModel";
+import {likeFactory} from "../../factorys/likeFactory";
+import {postModel} from "../../models/postsModel";
+import {extendedLikeFactory} from "../../factorys/extendedLikeFactory";
+import {likeModel} from "../../models/likesModel";
+import {LikeStatus} from "../../interfaces/comments.interface";
+import {commentsRepository} from "../comments/commentsRepository";
+import {ExtendedLikesInstance} from "../../interfaces/extended-likes.interface";
 
 class PostsController {
 
@@ -12,6 +24,8 @@ class PostsController {
             const postsQuery = await findPostsHelper(req.query)
             const sortedPosts = await postsQueryRepository.postsSortWithQuery(postsQuery)
             const postsQueryData = new CreateItemsWithQueryDto<PostInstance>(postsQuery, sortedPosts)
+            const likeData = await likeModel.find({postId: sortedPosts[0]._id, status: LikeStatus.Like}).limit(3)
+            console.log(likeData)
             res.status(200).json(postsQueryData)
         } catch (e) {
             res.status(500).send(e)
@@ -22,7 +36,36 @@ class PostsController {
         try {
             const postsQuery = await findPostsHelper(req.query, req.params.id)
             const sortedPosts = await postsQueryRepository.getAllPostsByBlogIdSortWithQuery(req.params.id, postsQuery)
-            const postsQueryData = new CreateItemsWithQueryDto<PostInstance>(postsQuery, sortedPosts)
+            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
+            const postsMap = await Promise.all(sortedPosts.map(async (item) => {
+                const likeStatus = await likeModel.findOne({postId: item._id, userId: isUserExists?._id})
+                const likeDetails = await likeModel.find({postId: item._id, status: LikeStatus.Like}).limit(3)
+                const likeDetailsMap = await Promise.all(
+                    likeDetails.map(async (like: any) => {
+                        const user = await userModel.findById(like.userId)
+                        return {
+                            addedAt: like.createdAt,
+                            userId: like.userId,
+                            login: user!.login
+                        }
+                    })
+                )
+                return isUserExists ? {
+                    ...item,
+                    extendedLikesInfo: {
+                        ...item.extendedLikesInfo, myStatus: likeStatus?.status, newestLikes: {
+                            likeDetailsMap
+                        }
+                    }
+                } : {
+                    ...item, extendedLikesInfo: {
+                        ...item.extendedLikesInfo, myStatus: LikeStatus.None, newestLikes: {
+                            likeDetailsMap
+                        }
+                    }
+                }
+            }))
+            const postsQueryData = new CreateItemsWithQueryDto<PostInstance>(postsQuery, postsMap)
             res.status(200).json(postsQueryData)
         } catch (e) {
             res.status(500).send(e)
@@ -50,6 +93,20 @@ class PostsController {
     async updatePostById(req: Request<any, any, any, any>, res: Response) {
         try {
             await postsRepository.updatePostById(req.params.id, req.body)
+            res.status(204).send('Обновлено')
+        } catch (e) {
+            res.status(500).send(e)
+        }
+    }
+
+    async updatePostByIdWithLikeStatus(req: Request, res: Response) {
+        try {
+            const token = tokenService.getToken(req.headers.authorization);
+            const decodedToken: any = decode(token)
+            const user: UserInstance | null = await userModel.findById(decodedToken?._id)
+            const likeStatus = req.body.likeStatus
+            const findedPost = await postModel.findById(req.params.id)
+            const updates = await extendedLikeFactory(likeStatus, findedPost!, user!)
             res.status(204).send('Обновлено')
         } catch (e) {
             res.status(500).send(e)

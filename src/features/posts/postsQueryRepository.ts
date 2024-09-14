@@ -21,6 +21,7 @@ class PostsQueryRepository {
             // .sort(query.sortBy, query.sortDirection)
             .limit(query.pageSize)
             .skip((query.page - 1) * query.pageSize)
+            .lean()
         return sortedPosts
     }
 

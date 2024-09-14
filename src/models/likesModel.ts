@@ -10,12 +10,18 @@ const likeStatusSchema: Schema = new Schema({
         },
         userId: {
             type: Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'User',
+            required: true,
         },
         commentId: {
             type: Schema.Types.ObjectId,
             ref: 'Comment'
         },
+        postId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Post'
+        }
+
     },
     {
         versionKey: false,

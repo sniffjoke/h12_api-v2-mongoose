@@ -1,14 +1,14 @@
 
-export interface newestLike {
+export interface NewestLike {
     addedAt: string
     userId: string
     login: string
 }
 
-export interface extendedLikesInfo {
+export interface ExtendedLikesInfo {
     likesCount: number;
     dislikesCount: number;
-    newestLikes: newestLike[]
+    newestLikes: NewestLike[]
 }
 
 export interface PostInstance {
@@ -19,4 +19,5 @@ export interface PostInstance {
     blogId: string;
     blogName: string;
     createdAt: string;
+    extendedLikesInfo: ExtendedLikesInfo;
 }

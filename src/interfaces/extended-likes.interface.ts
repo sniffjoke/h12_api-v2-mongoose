@@ -1,6 +1,7 @@
-export interface LikeInstance {
+export interface ExtendedLikesInstance {
     _id: string;
     status: string,
     userId: string,
-    commentId: string,
+    postId: string,
+    createdAt: string,
 }

@@ -66,5 +66,11 @@ router.route('/:id/comments')
         commentsController.createCommentByPostId
     )
 
+router.route('/:id/like-status')
+    .put(
+        authMiddlewareWithBearer,
+        postsController.updatePostByIdWithLikeStatus
+    )
+
 
 export default router

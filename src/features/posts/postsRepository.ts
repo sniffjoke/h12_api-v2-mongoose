@@ -1,15 +1,17 @@
-import {PostInstance} from "../../interfaces/posts.interface";
+import {ExtendedLikesInfo, PostInstance} from "../../interfaces/posts.interface";
 import {postModel} from "../../models/postsModel";
 import {IPost} from "../../types/IPost";
 import {UpdateWriteOpResult} from "mongoose";
 import {UpdatePostDto} from "./dto/UpdatePost.dto";
 import {BlogInstance} from "../../interfaces/blogs.interface";
 import {blogModel} from "../../models/blogsModel";
+import {userModel} from "../../models/usersModel";
 
 class PostsRepository {
 
     public posts = postModel
     public blogs = blogModel
+    public users = userModel
 
     async getAllPosts(): Promise<PostInstance[]> {
         const posts = await this.posts.find()
@@ -18,8 +20,17 @@ class PostsRepository {
 
     async createPost(postData: IPost): Promise<PostInstance> {
         const blog: BlogInstance | null = await this.blogs.findById(postData.blogId)
-        const post = new this.posts({...postData, blogName: blog?.name})
+        const extendedLikesInfo: ExtendedLikesInfo = {
+            likesCount: 0,
+            dislikesCount: 0,
+            newestLikes: []
+        }
+        const post = new this.posts({...postData, blogName: blog?.name, extendedLikesInfo})
         await post.save()
+        // const likeStatus = await likeModel.create({
+        //     status: LikeStatus.None,
+        //     postId: post._id,
+        // })
         return post
     }
 
