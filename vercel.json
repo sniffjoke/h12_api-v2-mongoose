@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "h12_api-v2-mongoose",
+  "builds": [
+    { "src": "src/index.ts", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "src/index.ts" }
+  ]
+}
