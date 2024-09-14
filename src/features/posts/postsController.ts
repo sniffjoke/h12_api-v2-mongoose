@@ -21,7 +21,6 @@ class PostsController {
             const postsQuery = await findPostsHelper(req.query)
             const sortedPosts = await postsQueryRepository.postsSortWithQuery(postsQuery)
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
-            console.log(sortedPosts)
             const postsMap = await Promise.all(sortedPosts.map(async (item) => {
                 const likeStatus = await likeModel.findOne({postId: item._id, userId: isUserExists?._id})
                 const likeDetails = await likeModel.find({postId: item._id, status: LikeStatus.Like}).limit(3)
@@ -38,15 +37,15 @@ class PostsController {
                 return isUserExists ? {
                     ...item,
                     extendedLikesInfo: {
-                        ...item.extendedLikesInfo, myStatus: likeStatus?.status, newestLikes: {
-                            likeDetailsMap
-                        }
+                        ...item.extendedLikesInfo,
+                        myStatus: likeStatus?.status,
+                        newestLikes: likeDetailsMap
                     }
                 } : {
                     ...item, extendedLikesInfo: {
-                        ...item.extendedLikesInfo, myStatus: LikeStatus.None, newestLikes: {
-                            likeDetailsMap
-                        }
+                        ...item.extendedLikesInfo,
+                        myStatus: LikeStatus.None,
+                        newestLikes: likeDetailsMap
                     }
                 }
             }))
@@ -78,15 +77,15 @@ class PostsController {
                 return isUserExists ? {
                     ...item,
                     extendedLikesInfo: {
-                        ...item.extendedLikesInfo, myStatus: likeStatus?.status, newestLikes: {
-                            likeDetailsMap
-                        }
+                        ...item.extendedLikesInfo,
+                        myStatus: likeStatus?.status,
+                        newestLikes: likeDetailsMap
                     }
                 } : {
                     ...item, extendedLikesInfo: {
-                        ...item.extendedLikesInfo, myStatus: LikeStatus.None, newestLikes: {
-                            likeDetailsMap
-                        }
+                        ...item.extendedLikesInfo,
+                        myStatus: LikeStatus.None,
+                        newestLikes: likeDetailsMap
                     }
                 }
             }))
@@ -101,7 +100,10 @@ class PostsController {
         try {
             const post = await postsRepository.createPost(req.body)
             const newPost = await postsQueryRepository.postOutput(post._id)
-            res.status(201).json({...newPost, extendedLikesInfo: {...newPost.extendedLikesInfo, myStatus: LikeStatus.None}})
+            res.status(201).json({
+                ...newPost,
+                extendedLikesInfo: {...newPost.extendedLikesInfo, myStatus: LikeStatus.None}
+            })
         } catch (e) {
             res.status(500).send(e)
         }
@@ -111,7 +113,10 @@ class PostsController {
         try {
             const post = await postsRepository.createPostByBlogId(req.body, req.params.id)
             const newPost = await postsQueryRepository.postOutput(post._id)
-            res.status(201).json({...newPost, extendedLikesInfo: {...newPost.extendedLikesInfo, myStatus: LikeStatus.None}})
+            res.status(201).json({
+                ...newPost,
+                extendedLikesInfo: {...newPost.extendedLikesInfo, myStatus: LikeStatus.None}
+            })
         } catch (e) {
             res.status(500).send(e)
         }
@@ -154,7 +159,13 @@ class PostsController {
             const post = await postsQueryRepository.postOutput(req.params.id)
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
             const likeStatus = await likeModel.findOne({userId: isUserExists?._id, postId: post.id})
-            res.status(200).json({...post, extendedLikesInfo: {...post.extendedLikesInfo, myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None}})
+            res.status(200).json({
+                ...post,
+                extendedLikesInfo: {
+                    ...post.extendedLikesInfo,
+                    myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
+                }
+            })
         } catch (e) {
             res.status(500).send(e)
         }
