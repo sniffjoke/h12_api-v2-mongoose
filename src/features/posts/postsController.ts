@@ -96,6 +96,35 @@ class PostsController {
         }
     }
 
+    async getPostById(req: Request<any, any, any, any>, res: Response) {
+        try {
+            const post = await postsQueryRepository.postOutput(req.params.id)
+            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
+            const likeStatus = await likeModel.findOne({userId: isUserExists?._id, postId: post.id})
+            const likeDetails = await likeModel.find({postId: post.id, status: LikeStatus.Like}).limit(3)
+            const likeDetailsMap = await Promise.all(
+                likeDetails.map(async (like: any) => {
+                    const user = await userModel.findById(like.userId)
+                    return {
+                        addedAt: like.createdAt,
+                        userId: like.userId,
+                        login: user!.login
+                    }
+                })
+            )
+            res.status(200).json({
+                ...post,
+                extendedLikesInfo: {
+                    ...post.extendedLikesInfo,
+                    newestLikes: likeDetailsMap,
+                    myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
+                }
+            })
+        } catch (e) {
+            res.status(500).send(e)
+        }
+    }
+
     async createPost(req: Request<any, any, any, any>, res: Response) {
         try {
             const post = await postsRepository.createPost(req.body)
@@ -149,23 +178,6 @@ class PostsController {
         try {
             await postsRepository.deletePostById(req.params.id)
             res.status(204).send('Удалено');
-        } catch (e) {
-            res.status(500).send(e)
-        }
-    }
-
-    async getPostById(req: Request<any, any, any, any>, res: Response) {
-        try {
-            const post = await postsQueryRepository.postOutput(req.params.id)
-            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
-            const likeStatus = await likeModel.findOne({userId: isUserExists?._id, postId: post.id})
-            res.status(200).json({
-                ...post,
-                extendedLikesInfo: {
-                    ...post.extendedLikesInfo,
-                    myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
-                }
-            })
         } catch (e) {
             res.status(500).send(e)
         }
