@@ -1,23 +1,6 @@
 import {Schema, Document, model} from "mongoose";
 import {PostInstance} from "../interfaces/posts.interface";
 
-const newestLike: Schema = new Schema({
-        addedAt: {
-            type: String,
-            required: true
-        },
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User"
-        },
-        login: {
-            type: String,
-            required: true
-        },
-    },
-    {_id: false}
-)
-
 const extendedLikesInfo: Schema = new Schema({
         likesCount: {
             type: Number,
@@ -25,9 +8,6 @@ const extendedLikesInfo: Schema = new Schema({
         dislikesCount: {
             type: Number,
         },
-        // newestLikes: {
-        //     type: [newestLike]
-        // }
     },
     {_id: false}
 )
