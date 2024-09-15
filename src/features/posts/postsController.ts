@@ -24,7 +24,10 @@ class PostsController {
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
             const postsMap = await Promise.all(sortedPosts.map(async (item) => {
                 const likeStatus = await likeModel.findOne({postId: item.id, userId: isUserExists?._id})
-                const likeDetails = await likeModel.find({postId: item.id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
+                const likeDetails = await likeModel.find({
+                    postId: item.id,
+                    status: LikeStatus.Like
+                }).limit(3).sort({createdAt: -1})
                 const likeDetailsMap = await Promise.all(
                     likeDetails.map(async (like: any) => {
                         const user = await userModel.findById(like.userId)
@@ -64,7 +67,10 @@ class PostsController {
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
             const postsMap = await Promise.all(sortedPosts.map(async (item) => {
                 const likeStatus = await likeModel.findOne({postId: item.id, userId: isUserExists?._id})
-                const likeDetails = await likeModel.find({postId: item.id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
+                const likeDetails = await likeModel.find({
+                    postId: item.id,
+                    status: LikeStatus.Like
+                }).limit(3).sort({createdAt: -1})
                 const likeDetailsMap = await Promise.all(
                     likeDetails.map(async (like: any) => {
                         const user = await userModel.findById(like.userId)
@@ -102,12 +108,15 @@ class PostsController {
             const post = await postsQueryRepository.postOutput(req.params.id)
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
             const likeStatus = await likeModel.findOne({userId: isUserExists?._id, postId: post.id})
-            const likeDetails = await likeModel.find({postId: post.id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
+            const likeDetails = await likeModel.find({
+                postId: post.id,
+                status: LikeStatus.Like
+            }).limit(3).sort({createdAt: -1})
             const likeDetailsMap = await Promise.all(
                 likeDetails.map(async (like: any) => {
                     const user = await userModel.findById(like.userId)
                     return {
-                        addedAt: like.createdAt,
+                        addedAt: like.createdAt.toString(),
                         userId: like.userId,
                         login: user!.login
                     }
