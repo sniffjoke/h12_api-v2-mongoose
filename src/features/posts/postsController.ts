@@ -20,10 +20,11 @@ class PostsController {
         try {
             const postsQuery = await findPostsHelper(req.query)
             const sortedPosts = await postsQueryRepository.postsSortWithQuery(postsQuery)
+            console.log(sortedPosts)
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
             const postsMap = await Promise.all(sortedPosts.map(async (item) => {
-                const likeStatus = await likeModel.findOne({postId: item._id, userId: isUserExists?._id})
-                const likeDetails = await likeModel.find({postId: item._id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
+                const likeStatus = await likeModel.findOne({postId: item.id, userId: isUserExists?._id})
+                const likeDetails = await likeModel.find({postId: item.id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
                 const likeDetailsMap = await Promise.all(
                     likeDetails.map(async (like: any) => {
                         const user = await userModel.findById(like.userId)
@@ -62,8 +63,8 @@ class PostsController {
             const sortedPosts = await postsQueryRepository.getAllPostsByBlogIdSortWithQuery(req.params.id, postsQuery)
             const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
             const postsMap = await Promise.all(sortedPosts.map(async (item) => {
-                const likeStatus = await likeModel.findOne({postId: item._id, userId: isUserExists?._id})
-                const likeDetails = await likeModel.find({postId: item._id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
+                const likeStatus = await likeModel.findOne({postId: item.id, userId: isUserExists?._id})
+                const likeDetails = await likeModel.find({postId: item.id, status: LikeStatus.Like}).limit(3).sort({createdAt: -1})
                 const likeDetailsMap = await Promise.all(
                     likeDetails.map(async (like: any) => {
                         const user = await userModel.findById(like.userId)

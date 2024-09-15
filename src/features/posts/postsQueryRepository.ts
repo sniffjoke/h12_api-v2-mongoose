@@ -14,7 +14,7 @@ class PostsQueryRepository {
             .limit(query.pageSize)
             .skip((query.page - 1) * query.pageSize)
             .lean()
-        return sortedPosts
+        return sortedPosts.map(item => this.postMapOutput(item))
     }
 
     async getAllPostsByBlogIdSortWithQuery(blogId: string, query: any) {
@@ -25,7 +25,7 @@ class PostsQueryRepository {
             .limit(query.pageSize)
             .skip((query.page - 1) * query.pageSize)
             .lean()
-        return sortedPosts
+        return sortedPosts.map(item => this.postMapOutput(item))
     }
 
     async postOutput(id: string): Promise<CreatePostDto> {
