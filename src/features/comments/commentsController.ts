@@ -12,6 +12,7 @@ import {decode} from "jsonwebtoken";
 import {UserInstance} from "../../interfaces/users.interface";
 import {likeModel} from "../../models/likesModel";
 import {likeFactory} from "../../factorys/likeFactory";
+import {userService} from "../../services/user.service";
 
 class CommentsController {
 
@@ -32,7 +33,7 @@ class CommentsController {
         try {
             const commentsQuery = await findCommentsHelper(req.query, req.params.id)
             const sortedComments = await commentsQueryRepository.getAllCommentsByPostId(commentsQuery)
-            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
+            const isUserExists = await userService.isUserExists(req.headers.authorization as string)
             const commentsMap = await Promise.all(sortedComments.map( async (item) => {
                 const likeStatus = await likeModel.findOne({commentId: item.id, userId: item.commentatorInfo.userId})
                 return isUserExists ? {...item, likesInfo: {...item.likesInfo, myStatus: likeStatus?.status}} : {...item, likesInfo: {...item.likesInfo, myStatus: LikeStatus.None}}
@@ -47,7 +48,7 @@ class CommentsController {
     async getCommentById(req: Request, res: Response) {
         try {
             const comment = await commentsQueryRepository.commentOutput(req.params.id)
-            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
+            const isUserExists = await userService.isUserExists(req.headers.authorization as string)
             const likeStatus = await likeModel.findOne({userId: isUserExists?._id, commentId: comment.id})
             res.status(200).json({...comment, likesInfo: {...comment.likesInfo, myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None}})
         } catch (e) {

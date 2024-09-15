@@ -10,9 +10,8 @@ import {UserInstance} from "../../interfaces/users.interface";
 import {userModel} from "../../models/usersModel";
 import {postModel} from "../../models/postsModel";
 import {extendedLikeFactory} from "../../factorys/extendedLikeFactory";
-import {likeModel} from "../../models/likesModel";
 import {LikeStatus} from "../../interfaces/comments.interface";
-import {commentsRepository} from "../comments/commentsRepository";
+import {postsService} from "./postsService";
 
 class PostsController {
 
@@ -20,40 +19,8 @@ class PostsController {
         try {
             const postsQuery = await findPostsHelper(req.query)
             const sortedPosts = await postsQueryRepository.postsSortWithQuery(postsQuery)
-            console.log(sortedPosts)
-            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
-            const postsMap = await Promise.all(sortedPosts.map(async (item) => {
-                const likeStatus = await likeModel.findOne({postId: item.id, userId: isUserExists?._id})
-                const likeDetails = await likeModel.find({
-                    postId: item.id,
-                    status: LikeStatus.Like
-                }).limit(3).sort({createdAt: -1})
-                const likeDetailsMap = await Promise.all(
-                    likeDetails.map(async (like: any) => {
-                        const user = await userModel.findById(like.userId)
-                        return {
-                            addedAt: like.createdAt.toISOString(),
-                            userId: like.userId,
-                            login: user!.login
-                        }
-                    })
-                )
-                return isUserExists ? {
-                    ...item,
-                    extendedLikesInfo: {
-                        ...item.extendedLikesInfo,
-                        myStatus: likeStatus ? likeStatus.status : LikeStatus.None,
-                        newestLikes: likeDetailsMap
-                    }
-                } : {
-                    ...item, extendedLikesInfo: {
-                        ...item.extendedLikesInfo,
-                        myStatus: LikeStatus.None,
-                        newestLikes: likeDetailsMap
-                    }
-                }
-            }))
-            const postsQueryData = new CreateItemsWithQueryDto<PostInstance>(postsQuery, postsMap)
+            const newData = await postsService.generatePostsWithLikesDetails(sortedPosts, req.headers.authorization as string)
+            const postsQueryData = new CreateItemsWithQueryDto<PostInstance>(postsQuery, newData)
             res.status(200).json(postsQueryData)
         } catch (e) {
             res.status(500).send(e)
@@ -64,39 +31,8 @@ class PostsController {
         try {
             const postsQuery = await findPostsHelper(req.query, req.params.id)
             const sortedPosts = await postsQueryRepository.getAllPostsByBlogIdSortWithQuery(req.params.id, postsQuery)
-            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
-            const postsMap = await Promise.all(sortedPosts.map(async (item) => {
-                const likeStatus = await likeModel.findOne({postId: item.id, userId: isUserExists?._id})
-                const likeDetails = await likeModel.find({
-                    postId: item.id,
-                    status: LikeStatus.Like
-                }).limit(3).sort({createdAt: -1})
-                const likeDetailsMap = await Promise.all(
-                    likeDetails.map(async (like: any) => {
-                        const user = await userModel.findById(like.userId)
-                        return {
-                            addedAt: like.createdAt.toISOString(),
-                            userId: like.userId,
-                            login: user!.login
-                        }
-                    })
-                )
-                return isUserExists ? {
-                    ...item,
-                    extendedLikesInfo: {
-                        ...item.extendedLikesInfo,
-                        myStatus: likeStatus ? likeStatus.status : LikeStatus.None,
-                        newestLikes: likeDetailsMap
-                    }
-                } : {
-                    ...item, extendedLikesInfo: {
-                        ...item.extendedLikesInfo,
-                        myStatus: LikeStatus.None,
-                        newestLikes: likeDetailsMap
-                    }
-                }
-            }))
-            const postsQueryData = new CreateItemsWithQueryDto<PostInstance>(postsQuery, postsMap)
+            const newData = await postsService.generatePostsWithLikesDetails(sortedPosts, req.headers.authorization as string)
+            const postsQueryData = new CreateItemsWithQueryDto<PostInstance>(postsQuery, newData)
             res.status(200).json(postsQueryData)
         } catch (e) {
             res.status(500).send(e)
@@ -106,39 +42,8 @@ class PostsController {
     async getPostById(req: Request<any, any, any, any>, res: Response) {
         try {
             const post = await postsQueryRepository.postOutput(req.params.id)
-            const isUserExists = await commentsRepository.isUserExists(req.headers.authorization as string)
-            const likeStatus = await likeModel.findOne({userId: isUserExists?._id, postId: post.id})
-            const likeDetails = await likeModel.find({
-                postId: post.id,
-                status: LikeStatus.Like
-            })
-                .limit(3)
-                .sort({createdAt: -1})
-            const likeDetailsMap = await Promise.all(
-                likeDetails.map(async (like: any) => {
-                    const user = await userModel.findById(like.userId)
-                    return {
-                        addedAt: like.createdAt.toISOString(),
-                        userId: like.userId,
-                        login: user!.login
-                    }
-                })
-            )
-            res.status(200).json(likeDetailsMap.length ? {
-                ...post,
-                extendedLikesInfo: {
-                    ...post.extendedLikesInfo,
-                    newestLikes: likeDetailsMap,
-                    myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
-                }
-            } : {
-                ...post,
-                extendedLikesInfo: {
-                    ...post.extendedLikesInfo,
-                    newestLikes: likeDetailsMap,
-                    myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
-                }
-            })
+            const postWithDetails = await postsService.generateOnePostWithLikesDetails(post, req.headers.authorization as string)
+            res.status(200).json(postWithDetails)
         } catch (e) {
             res.status(500).send(e)
         }

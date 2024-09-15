@@ -9,7 +9,6 @@ import {UserInstance} from "../../interfaces/users.interface";
 import {UpdateWriteOpResult} from "mongoose";
 import {UpdateCommentDto} from "./dto/UpdateComment.dto";
 import {likeModel} from "../../models/likesModel";
-import {tokenService} from "../../services/token.service";
 
 class CommentsRepository {
 
@@ -51,14 +50,6 @@ class CommentsRepository {
     async deleteCommentById(id: string) {
         const comment = await this.comments.findByIdAndDelete(id)
         return comment
-    }
-
-    async isUserExists(bearerToken: string) {
-        if (!bearerToken) return null
-        const token = tokenService.getToken(bearerToken);
-        const validateToken: any = tokenService.validateAccessToken(token)
-        const user: UserInstance | null = await userModel.findById(validateToken?._id)
-        return user
     }
 
 }
