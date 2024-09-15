@@ -85,7 +85,7 @@ class PostsController {
                     ...item,
                     extendedLikesInfo: {
                         ...item.extendedLikesInfo,
-                        myStatus: likeStatus?.status,
+                        myStatus: likeStatus ? likeStatus.status : LikeStatus.None,
                         newestLikes: likeDetailsMap
                     }
                 } : {
