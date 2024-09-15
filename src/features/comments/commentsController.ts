@@ -43,7 +43,7 @@ class CommentsController {
     async getCommentById(req: Request, res: Response) {
         try {
             const comment = await commentsQueryRepository.commentOutput(req.params.id)
-            const commentData = await commentsService.generateNewCommentData(comment, req.params.id)
+            const commentData = await commentsService.generateNewCommentData(comment, req.headers.authorization as string)
             res.status(200).json(commentData)
         } catch (e) {
             res.status(500).send(e)
