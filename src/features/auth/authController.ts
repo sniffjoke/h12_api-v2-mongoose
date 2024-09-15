@@ -20,8 +20,9 @@ class AuthController {
             }
             const myIp = ip.address()
             const userAgent = req.headers['user-agent'] as string;
-            const findSession = await deviceModel.findOne({ip: myIp, title: userAgent})
+            const findSession = await deviceModel.findOne({userId: user._id.toString(), ip: myIp, title: userAgent})
             const deviceData: IDevice = {
+                userId: user._id.toString(),
                 deviceId: findSession ? findSession.deviceId : uuid(),
                 ip: myIp,
                 title: userAgent,

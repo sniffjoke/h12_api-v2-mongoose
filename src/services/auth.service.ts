@@ -89,6 +89,14 @@ class AuthService {
         if (!addTokenToDb) {
             throw ApiError.UnauthorizedError()
         }
+        const findSessionAndUpdate = await deviceModel.findOneAndUpdate({userId: isTokenExists.userId, deviceId: isTokenExists.deviceId}, {
+            $set: {
+                lastActiveDate: new Date(Date.now()).toISOString(),
+            }
+        })
+        if (!findSessionAndUpdate) {
+            throw ApiError.UnauthorizedError()
+        }
         return {
             refreshToken,
             accessToken

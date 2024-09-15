@@ -4,16 +4,18 @@ import {ApiError} from "../../exceptions/api.error";
 import {deviceModel} from "../../models/devicesModel";
 import {DeviceInstance} from "../../interfaces/devices.interface";
 import {tokenModel} from "../../models/tokensModel";
+import {usersRepository} from "../users/usersRepository";
 
 class DevicesController {
 
     async getDevices(req: Request<any, any, any, any>, res: Response, next: NextFunction) {
         const token = req.cookies.refreshToken;
-        const validateToken = tokenService.validateRefreshToken(token)
+        const validateToken: any = tokenService.validateRefreshToken(token)
         if (!validateToken) {
             return next(ApiError.UnauthorizedError())
         }
-        const devices = await deviceModel.find()
+        const user = await usersRepository.findUserById(validateToken._id)
+        const devices = await deviceModel.find({userId: user?._id.toString()})
         const deviceMap = (device: DeviceInstance) => ({
             deviceId: device.deviceId,
             ip: device.ip,
@@ -59,7 +61,9 @@ class DevicesController {
         if (!validateToken) {
             return next(ApiError.UnauthorizedError())
         }
-        await deviceModel.deleteMany({deviceId: {$ne: validateToken.deviceId}})
+        // await deviceModel.deleteMany({userId: {$ne: validateToken.userId}})
+        // await deviceModel.deleteMany({deviceId: {$ne: validateToken.deviceId}})
+        await deviceModel.deleteMany({userId: validateToken._id, deviceId: {$ne: validateToken.deviceId}})
         await tokenModel.updateMany({userId: validateToken._id, deviceId: {$ne: validateToken.deviceId}}, {$set: {blackList: true}})
         res.status(204).send('Удалено');
     } catch (e) {
