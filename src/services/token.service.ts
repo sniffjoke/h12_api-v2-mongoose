@@ -39,13 +39,13 @@ class TokenService {
             {_id: userId},
             SETTINGS.VARIABLES.JWT_SECRET_ACCESS_TOKEN as string,
             // {expiresIn: 60*60*1000}
-            {expiresIn: '2000s'}
+            {expiresIn: '10s'}
         )
         const refreshToken = sign(
             {_id: userId, deviceId},
             SETTINGS.VARIABLES.JWT_SECRET_REFRESH_TOKEN as string,
             // {expiresIn: 60*60*1000}
-            {expiresIn: '4000s'}
+            {expiresIn: '20s'}
         )
         return {
             accessToken,
