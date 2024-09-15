@@ -32,7 +32,7 @@ class PostsController {
                     likeDetails.map(async (like: any) => {
                         const user = await userModel.findById(like.userId)
                         return {
-                            addedAt: like.createdAt,
+                            addedAt: like.createdAt.toString(),
                             userId: like.userId,
                             login: user!.login
                         }
@@ -75,7 +75,7 @@ class PostsController {
                     likeDetails.map(async (like: any) => {
                         const user = await userModel.findById(like.userId)
                         return {
-                            addedAt: like.createdAt,
+                            addedAt: like.createdAt.toString(),
                             userId: like.userId,
                             login: user!.login
                         }
