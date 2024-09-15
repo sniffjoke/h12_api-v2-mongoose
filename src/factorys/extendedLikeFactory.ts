@@ -1,5 +1,4 @@
-import {CommentInstance, LikeStatus} from "../interfaces/comments.interface";
-import {commentModel} from "../models/commentsModel";
+import {LikeStatus} from "../interfaces/comments.interface";
 import {UserInstance} from "../interfaces/users.interface";
 import {likeModel} from "../models/likesModel";
 import {LikeInstance} from "../interfaces/likes.interface";
@@ -8,7 +7,7 @@ import {postModel} from "../models/postsModel";
 
 
 export async function extendedLikeFactory(likeStatus: string, post: PostInstance, user: UserInstance) {
-    const isLikeObjectForCurrentUserExists: LikeInstance | null = await likeModel.findOne({userId: user._id});
+    const isLikeObjectForCurrentUserExists: LikeInstance | null = await likeModel.findOne({userId: user._id, postId: post._id});
     if (isLikeObjectForCurrentUserExists === null) {
         const newLike = await likeModel.create({
             status: LikeStatus.None,
