@@ -35,12 +35,20 @@ class PostsService {
                 }
             })
         )
+        const myStatus = isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
+        const postDataWithInfo = this.statusAndNewLikesPayload(post, myStatus, likeDetailsMap)
+        return postDataWithInfo
+    }
+
+    statusAndNewLikesPayload(post: CreatePostDto, status?: string, newestLikes?: any) {
+        const newStatus = status ? status : LikeStatus.None
+        const newLikes = newestLikes ? newestLikes : []
         return {
             ...post,
             extendedLikesInfo: {
                 ...post.extendedLikesInfo,
-                newestLikes: likeDetailsMap,
-                myStatus: isUserExists && likeStatus ? likeStatus?.status : LikeStatus.None
+                myStatus: newStatus,
+                newestLikes: newLikes
             }
         }
     }

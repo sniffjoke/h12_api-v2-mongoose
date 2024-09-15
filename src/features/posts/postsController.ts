@@ -10,7 +10,6 @@ import {UserInstance} from "../../interfaces/users.interface";
 import {userModel} from "../../models/usersModel";
 import {postModel} from "../../models/postsModel";
 import {extendedLikeFactory} from "../../factorys/extendedLikeFactory";
-import {LikeStatus} from "../../interfaces/comments.interface";
 import {postsService} from "./postsService";
 
 class PostsController {
@@ -53,14 +52,8 @@ class PostsController {
         try {
             const post = await postsRepository.createPost(req.body)
             const newPost = await postsQueryRepository.postOutput(post._id)
-            res.status(201).json({
-                ...newPost,
-                extendedLikesInfo: {
-                    ...newPost.extendedLikesInfo,
-                    myStatus: LikeStatus.None,
-                    newestLikes: []
-                }
-            })
+            const postDataWithInfo = postsService.statusAndNewLikesPayload(newPost)
+            res.status(201).json(postDataWithInfo)
         } catch (e) {
             res.status(500).send(e)
         }
@@ -70,14 +63,8 @@ class PostsController {
         try {
             const post = await postsRepository.createPostByBlogId(req.body, req.params.id)
             const newPost = await postsQueryRepository.postOutput(post._id)
-            res.status(201).json({
-                ...newPost,
-                extendedLikesInfo: {
-                    ...newPost.extendedLikesInfo,
-                    myStatus: LikeStatus.None,
-                    newestLikes: []
-                }
-            })
+            const postDataWithInfo = postsService.statusAndNewLikesPayload(newPost)
+            res.status(201).json(postDataWithInfo)
         } catch (e) {
             res.status(500).send(e)
         }
