@@ -15,7 +15,8 @@ class CommentsService {
 
     async generateNewCommentData(item: CreateCommentDto, bearerToken: string) {
         const isUserExists = await userService.isUserExists(bearerToken)
-        const likeStatus = await likeModel.findOne({commentId: item.id, userId: item.commentatorInfo.userId})
+        const likeStatus = await likeModel.findOne({commentId: item.id, userId: isUserExists?._id})
+        console.log(likeStatus)
         const myStatus = isUserExists && likeStatus ? likeStatus.status : LikeStatus.None
         const newCommentData = this.statusPayload(item, myStatus)
         return newCommentData
