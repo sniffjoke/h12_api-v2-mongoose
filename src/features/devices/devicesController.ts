@@ -15,7 +15,8 @@ class DevicesController {
             return next(ApiError.UnauthorizedError())
         }
         const user = await usersRepository.findUserById(validateToken._id)
-        const devices = await deviceModel.find({userId: user?._id.toString()})
+        console.log(user?._id)
+        const devices = await deviceModel.find({userId: user?._id})
         const deviceMap = (device: DeviceInstance) => ({
             deviceId: device.deviceId,
             ip: device.ip,

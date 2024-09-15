@@ -2,6 +2,11 @@ import {Schema, Document, model} from "mongoose";
 import {DeviceInstance} from "../interfaces/devices.interface";
 
 const deviceSchema: Schema = new Schema({
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
         deviceId: {
             type: String,
             required: true,

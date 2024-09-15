@@ -22,7 +22,7 @@ class AuthController {
             const userAgent = req.headers['user-agent'] as string;
             const findSession = await deviceModel.findOne({userId: user._id.toString(), ip: myIp, title: userAgent})
             const deviceData: IDevice = {
-                userId: user._id.toString(),
+                userId: user._id,
                 deviceId: findSession ? findSession.deviceId : uuid(),
                 ip: myIp,
                 title: userAgent,
@@ -38,6 +38,7 @@ class AuthController {
                 await tokenService.saveTokenInDb(user._id, refreshToken, false, findSession.deviceId)
             } else {
                 const newDevice = new deviceModel(deviceData)
+                console.log(deviceData)
                 await newDevice.save()
                 await tokenService.saveTokenInDb(user._id, refreshToken, false, deviceData.deviceId)
             }
