@@ -42,7 +42,7 @@ class PostsController {
                     ...item,
                     extendedLikesInfo: {
                         ...item.extendedLikesInfo,
-                        myStatus: likeStatus?.status,
+                        myStatus: likeStatus ? likeStatus.status : LikeStatus.None,
                         newestLikes: likeDetailsMap
                     }
                 } : {
@@ -111,7 +111,9 @@ class PostsController {
             const likeDetails = await likeModel.find({
                 postId: post.id,
                 status: LikeStatus.Like
-            }).limit(3).sort({createdAt: -1})
+            })
+                .limit(3)
+                .sort({createdAt: -1})
             const likeDetailsMap = await Promise.all(
                 likeDetails.map(async (like: any) => {
                     const user = await userModel.findById(like.userId)
